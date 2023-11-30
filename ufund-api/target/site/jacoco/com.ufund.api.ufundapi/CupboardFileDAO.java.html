@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CupboardFileDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">CupboardFileDAO.java</span></div><h1>CupboardFileDAO.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+
+import java.util.*;
+import java.util.logging.Logger;
+
+/**
+ * The CupboardFileDAO class contains methods called by the &lt;br&gt;
+ * CupboardController to help facilitate communication between JSON files &lt;br&gt;
+ * and Http requests.
+ *
+ * Implements the CupboardDAO interface.
+ *
+ * @author Benjamin Bremer (bwb1113)
+ * @author Elijah Sanders (ejs8021)
+ * @author Ryan Pedraza (rsp3216)
+ * @author Emmanuel Boakye (egb6005)
+ */
+@Component
+public class CupboardFileDAO implements CupboardDAO {
+
+    private final String filename;
+
+    private final ObjectMapper objectMapper;
+
+    /**
+     * Map containing all needs in the cupboard mapped to their int ID
+     */
+    private Map&lt;Integer, Need&gt; needs;
+
+    /**
+     * Logger object to help keep track of backend functionality &lt;br&gt;
+     * in the terminal
+     */
+<span class="fc" id="L42">    private static final Logger LOG =</span>
+<span class="fc" id="L43">            Logger.getLogger(CupboardFileDAO.class.getName());</span>
+
+    /**
+     * The CupboardFileDAO constructor initializes an instance of the
+     * cupboard and initializes the HashMap that contains the needs
+     */
+    public CupboardFileDAO(@Value(&quot;${needs.file}&quot;)String filename,
+<span class="fc" id="L50">                           ObjectMapper objectMapper) {</span>
+
+<span class="fc" id="L52">        this.needs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L53">        this.filename = filename;</span>
+<span class="fc" id="L54">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L55">        boolean loadValue = load();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (!loadValue) {</span>
+
+<span class="nc" id="L58">            LOG.info(&quot;Load failed\n&quot;);</span>
+<span class="nc" id="L59">            System.err.println(&quot;Load failed\n&quot;);</span>
+
+        }else {
+
+<span class="fc" id="L63">            LOG.info(&quot;Load succeeded: CupboardFileDAO initialized\n&quot;);</span>
+
+        }
+
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * The load method loads in the state of the Cupboard that &lt;br&gt;
+     *      * was stored in a JSON the last time the application was running.
+     *      * @return - Boolean true if the load was successful, false if &lt;br&gt;
+     *      *           otherwise
+     */
+    private boolean load() {
+
+        try {
+
+<span class="fc" id="L79">            Need[] needsArray =</span>
+<span class="fc" id="L80">                    this.objectMapper.readValue(</span>
+                            new File(this.filename), Need[].class);
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            for (Need need : needsArray) {</span>
+
+<span class="fc" id="L84">                this.needs.put(need.getProductID(), need);</span>
+
+            }
+
+<span class="fc" id="L88">            return true;</span>
+
+<span class="nc" id="L90">        }catch (IOException ioException) {</span>
+
+<span class="nc" id="L92">            System.err.println(ioException.getMessage());</span>
+<span class="nc" id="L93">            return false;</span>
+
+        }
+
+    }
+
+    /**
+     * The getNeedsArray method is used by the save method to help &lt;br&gt;
+     * the ObjectMapper write the Cupboard to a JSON. It takes the &lt;br&gt;
+     * HashMap of the Needs in the Cupboard and converts it to a &lt;br&gt;
+     * native Java array of type Need.
+     * @return - Need[] the Needs in the Cupboard as a Java native array
+     */
+    public Need[] getNeedsArray() {
+
+<span class="fc" id="L108">        ArrayList&lt;Need&gt; needsList = new ArrayList&lt;&gt;(this.needs.values());</span>
+<span class="fc" id="L109">        Need[] needsArray = new Need[needsList.size()];</span>
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for(int i = 0; i &lt; needsArray.length; i++) {</span>
+
+<span class="fc" id="L113">            needsArray[i] = needsList.get(i);</span>
+
+        }
+
+<span class="fc" id="L117">        return needsArray;</span>
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean save() {
+
+        try {
+
+<span class="fc" id="L129">            Need[] needsArray = getNeedsArray();</span>
+<span class="fc" id="L130">            objectMapper.writeValue(new File(this.filename), needsArray);</span>
+<span class="fc" id="L131">            LOG.info(&quot;Save succeeded\n&quot;);</span>
+<span class="fc" id="L132">            return true;</span>
+
+<span class="nc" id="L134">        }catch (IOException ioException) {</span>
+
+<span class="nc" id="L136">            LOG.info(&quot;Save failed\n&quot;);</span>
+<span class="nc" id="L137">            System.err.println(ioException.getMessage());</span>
+<span class="nc" id="L138">            return false;</span>
+
+        }
+
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public Need createNeed(Need need) {
+
+        // Create Need
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if(!this.needs.containsValue(need)) {</span>
+
+<span class="fc" id="L153">            this.needs.put(need.getProductID(), need);</span>
+<span class="fc" id="L154">            LOG.info(&quot;\t\tCupboardFileDAO created Need\n&quot;);</span>
+            // Save
+<span class="fc" id="L156">            boolean saveResult = save();</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">            if (saveResult) {</span>
+
+<span class="fc" id="L159">                return needs.get(need.getProductID());</span>
+
+            }else {
+
+<span class="nc" id="L163">                return needs.get(need.getProductID());</span>
+                // return null;
+
+            }
+
+        }else{
+
+<span class="fc" id="L170">            LOG.info(&quot;\t\tCupboardFileDAO could not create Need: &quot; +</span>
+                    &quot;Need already esists.\n&quot;);
+<span class="fc" id="L172">            return null;</span>
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Need deleteNeed(int id) {
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        if(this.needs.containsKey(id)) {</span>
+
+            // Delete Need
+<span class="fc" id="L187">            Need removed = needs.remove(id);</span>
+<span class="fc" id="L188">            LOG.info(&quot;\t\tCupboardFileDAO deleted Need\n&quot;);</span>
+
+            // Save
+<span class="fc" id="L191">            boolean saveResult = save();</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">            if (saveResult) {</span>
+
+<span class="fc" id="L194">                return removed;</span>
+
+            }else {
+
+<span class="nc" id="L198">                return null;</span>
+
+            }
+
+        }else {
+
+<span class="fc" id="L204">            return null;</span>
+
+        }
+
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Need getNeed(int id) {
+
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if(needs.containsKey(id)) {</span>
+
+<span class="fc" id="L219">            return needs.get(id);</span>
+
+        }else {
+
+<span class="fc" id="L223">            return null;</span>
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HashMap&lt;Integer, Need&gt; findNeeds(String name) {
+
+<span class="fc" id="L235">        HashMap&lt;Integer, Need&gt; matchingNeeds = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        for(Need need : this.needs.values()) {</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            if(need.getName().contains(name)) {</span>
+
+<span class="fc" id="L240">                matchingNeeds.put(need.getProductID(), need);</span>
+
+            }
+
+<span class="fc" id="L244">        }</span>
+
+<span class="fc" id="L246">        return matchingNeeds;</span>
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HashMap&lt;Integer, Need&gt; filterPrice(
+            double lowPrice, double highPrice) {
+
+<span class="fc" id="L257">        HashMap&lt;Integer, Need&gt; filtered = new HashMap&lt;&gt;();</span>
+        Need need;
+
+<span class="fc bfc" id="L260" title="All 4 branches covered.">        if(lowPrice &lt; 0 || lowPrice &gt; highPrice) {</span>
+
+<span class="fc" id="L262">            return null;</span>
+
+        }else {
+
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            for (int id : this.needs.keySet()) {</span>
+
+<span class="fc" id="L268">                need = this.needs.get(id);</span>
+
+<span class="fc bfc" id="L270" title="All 2 branches covered.">                if (need.getPrice() &gt;= lowPrice &amp;&amp;</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">                        need.getPrice() &lt;= highPrice) {</span>
+
+<span class="fc" id="L273">                    filtered.put(id, need);</span>
+
+                }
+
+<span class="fc" id="L277">            }</span>
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">            if (!(filtered.isEmpty())) {</span>
+
+<span class="fc" id="L281">                return filtered;</span>
+
+            } else {
+
+<span class="fc" id="L285">                return null;</span>
+
+            }
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HashMap&lt;Integer, Need&gt; filterTags(ArrayList&lt;String&gt; tags) {
+
+<span class="fc" id="L299">        HashMap&lt;Integer, Need&gt; filtered = new HashMap&lt;&gt;();</span>
+        Need need;
+
+<span class="fc bfc" id="L302" title="All 4 branches covered.">        if(tags == null || tags.isEmpty()) {</span>
+
+<span class="fc" id="L304">            return null;</span>
+
+        }else {
+
+<span class="fc bfc" id="L308" title="All 2 branches covered.">            for (int id : this.needs.keySet()) {</span>
+
+<span class="fc" id="L310">                need = this.needs.get(id);</span>
+
+<span class="fc bfc" id="L312" title="All 2 branches covered.">                for (String tag : tags) {</span>
+
+<span class="fc bfc" id="L314" title="All 2 branches covered.">                    if (need.getTags().contains(tag)) {</span>
+
+<span class="fc" id="L316">                        filtered.put(id, need);</span>
+<span class="fc" id="L317">                        break;</span>
+
+                    }
+
+<span class="fc" id="L321">                }</span>
+
+<span class="fc" id="L323">            }</span>
+
+<span class="fc bfc" id="L325" title="All 2 branches covered.">            if (!(filtered.isEmpty())) {</span>
+
+<span class="fc" id="L327">                return filtered;</span>
+
+            } else {
+
+<span class="fc" id="L331">                return null;</span>
+
+            }
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayList&lt;Need&gt; filterNumberSold(boolean highToLow) {
+
+        // HashMap&lt;Integer, Need&gt; sorted = new HashMap&lt;&gt;();
+<span class="fc" id="L346">        ArrayList&lt;Need&gt; sortedList = new ArrayList&lt;&gt;(this.needs.values());</span>
+<span class="fc" id="L347">        Collections.sort(sortedList);</span>
+
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        if(this.needs.isEmpty()) {</span>
+
+<span class="fc" id="L351">            return null;</span>
+
+        }else {
+
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            if (highToLow) {</span>
+
+<span class="fc" id="L357">                return sortedList;</span>
+
+            } else {
+
+<span class="fc" id="L361">                ArrayList&lt;Need&gt; reversedList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L363" title="All 2 branches covered.">                for (Need need : sortedList) {</span>
+
+<span class="fc" id="L365">                    reversedList.add(0, need);</span>
+
+<span class="fc" id="L367">                }</span>
+
+<span class="fc" id="L369">                return reversedList;</span>
+
+            }
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Need updateNeed(Need need, int id) {
+
+        // Update Need
+<span class="fc bfc" id="L384" title="All 2 branches covered.">        if(this.needs.containsKey(id)) {</span>
+
+<span class="fc" id="L386">            this.needs.get(id).updateStock(need.getStock());</span>
+<span class="fc" id="L387">            this.needs.get(id).updateName(need.getName());</span>
+<span class="fc" id="L388">            this.needs.get(id).updatePrice(need.getPrice());</span>
+<span class="fc" id="L389">            this.needs.get(id).updateImagePath(need.getImagePath());</span>
+<span class="fc" id="L390">            this.needs.get(id).updateTags(need.getTags());</span>
+<span class="fc" id="L391">            this.needs.get(id).updateDescription(need.getDescription());</span>
+<span class="fc" id="L392">            LOG.info(&quot;\t\tCupboardFileDAO updated Need&quot;);</span>
+
+            // Save
+<span class="fc" id="L395">            boolean saveResult = save();</span>
+<span class="pc bpc" id="L396" title="1 of 2 branches missed.">            if (saveResult) {</span>
+
+<span class="fc" id="L398">                return need;</span>
+
+            }else {
+
+<span class="nc" id="L402">                return null;</span>
+
+            }
+
+        }else {
+
+<span class="fc" id="L408">            LOG.info(&quot;\t\tCupboardFileDAO could not update Need: &quot; +</span>
+                    &quot;ID not found in Cupboard\n&quot;);
+<span class="fc" id="L410">            return null;</span>
+
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map&lt;Integer, Need&gt; getAllNeeds() {
+
+<span class="fc" id="L422">        return needs;</span>
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;String&gt; getAllTags() {
+
+<span class="fc" id="L432">        return Need.getAllTags();</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

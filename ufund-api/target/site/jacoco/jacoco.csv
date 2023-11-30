@@ -1,0 +1,15 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+ufund-api,com.ufund.api.ufundapi,NeedKeyDeserializer,14,3,2,0,3,1,2,1,1,1
+ufund-api,com.ufund.api.ufundapi,WebConfig,0,35,0,0,0,4,0,2,0,2
+ufund-api,com.ufund.api.ufundapi,User,7,67,4,4,4,21,4,8,0,8
+ufund-api,com.ufund.api.ufundapi,Helper,0,29,0,0,0,9,0,4,0,4
+ufund-api,com.ufund.api.ufundapi,CupboardController,0,319,2,30,0,75,2,26,0,12
+ufund-api,com.ufund.api.ufundapi,Basket,0,221,0,12,0,39,0,13,0,7
+ufund-api,com.ufund.api.ufundapi,UserController,60,218,1,13,14,48,2,14,1,8
+ufund-api,com.ufund.api.ufundapi,OutOfStockException,0,4,0,0,0,2,0,1,0,1
+ufund-api,com.ufund.api.ufundapi,UfundApiApplication,5,3,0,0,2,1,1,1,1,1
+ufund-api,com.ufund.api.ufundapi,Admin,0,12,0,0,0,4,0,2,0,2
+ufund-api,com.ufund.api.ufundapi,Need,0,213,2,12,0,63,2,31,0,26
+ufund-api,com.ufund.api.ufundapi,BasketController,0,223,0,6,0,58,0,9,0,6
+ufund-api,com.ufund.api.ufundapi,CupboardFileDAO,36,454,4,50,12,100,4,38,0,15
+ufund-api,com.ufund.api.ufundapi,UserFileDAO,4,314,3,21,2,63,3,18,0,9

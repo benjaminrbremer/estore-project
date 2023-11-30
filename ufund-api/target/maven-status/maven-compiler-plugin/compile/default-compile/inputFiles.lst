@@ -1,0 +1,16 @@
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/Need.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/WebConfig.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/CupboardFileDAO.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/Helper.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/NeedKeyDeserializer.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/UserFileDAO.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/UserDAO.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/OutOfStockException.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/CupboardController.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/BasketController.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/UfundApiApplication.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/Admin.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/User.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/UserController.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/CupboardDAO.java
+/Users/benjaminbremer/IdeaProjects/SWEN-261-03/team-project-2231-swen-261-03-8h-team8/ufund-api/src/main/java/com/ufund/api/ufundapi/Basket.java

@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Need.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">Need.java</span></div><h1>Need.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The Need class stores all necessary data for a need and contains the
+ * functions for creating and updating it.
+ *
+ * @author Benjamin Bremer (bwb1113)
+ */
+public class Need implements Comparable&lt;Need&gt; {
+
+    /**
+     * A static int to store the next ID that will get assigned to a new Need
+     */
+<span class="fc" id="L19">    private static int NEED_ID = 1000;</span>
+
+    /**
+     * A static String denoting the filepath of the default image
+     */
+    private static final String DEFAULT_IMAGE_PATH =
+            &quot;data/images/need-default.jpg&quot;;
+
+    /**
+     * An ArrayList that holds all of the categorization tags for all Needs.
+     */
+<span class="fc" id="L30">    private static List&lt;String&gt; ALL_TAGS = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * A static String to hold the default Need description.
+     */
+    private static final String DEFAULT_DESCRIPTION = &quot;Support this charity!&quot;;
+
+    /**
+     * The name of the need
+     */
+    @JsonProperty(&quot;name&quot;) private String name;
+
+    /**
+     * The price of the need
+     */
+    @JsonProperty(&quot;price&quot;) private double price;
+
+    /**
+     * The number of items in the cupboard of this particular need
+     * (The number of items in stock
+     *  Ex. There are *stock* number of *name* in stock)
+     */
+    @JsonProperty(&quot;stock&quot;) private int stock;
+
+    /**
+     * Unique identifier of a need
+     */
+    @JsonProperty(&quot;productID&quot;) private final int productID;
+
+    /**
+     * The String representing the filepath of the image used to &lt;br&gt;
+     * represent the need. Defaulted to DEFAULT_IMAGE_PATH in constructor.
+     */
+    @JsonProperty(&quot;image&quot;) private String imagePath;
+
+    /**
+     * An ArrayList of Strings representing the categories that the &lt;br&gt;
+     * Need falls into. Used for enhanced search functionality.
+     */
+    @JsonProperty(&quot;tags&quot;) private List&lt;String&gt; tags;
+
+    /**
+     * An int to track how many of this Need have been sold.
+     */
+    @JsonProperty(&quot;numberSold&quot;) private int numberSold;
+
+    /**
+     * A String to store the description of this Need
+     */
+    @JsonProperty(&quot;description&quot;) private String description;
+
+    /**
+     * Creates a new instance of a need
+     * @param name - String the name of the need
+     * @param price - double the price of the need
+     * @param stock - int the number of items in the cupboard of this
+     *                particular need
+     * @param tags - ArrayList&lt;String&gt; the list of tags to add to the Need.
+     * @param imagePath - String the file path of the image for the Need
+     * @param description - String the description of the Need
+     */
+    public Need(@JsonProperty(&quot;name&quot;) String name,
+                @JsonProperty(&quot;price&quot;) double price,
+                @JsonProperty(&quot;stock&quot;) int stock,
+                @JsonProperty(&quot;tags&quot;) ArrayList&lt;String&gt; tags,
+                @JsonProperty(&quot;image&quot;) String imagePath,
+<span class="fc" id="L96">                @JsonProperty(&quot;description&quot;) String description) {</span>
+
+<span class="fc" id="L98">        this.name = name;</span>
+<span class="fc" id="L99">        this.price = price;</span>
+<span class="fc" id="L100">        this.stock = stock;</span>
+<span class="fc" id="L101">        this.productID = NEED_ID;</span>
+<span class="fc" id="L102">        this.imagePath = imagePath;</span>
+<span class="fc" id="L103">        this.tags = tags;</span>
+<span class="fc" id="L104">        addTagsToAll(this.tags);</span>
+<span class="fc" id="L105">        NEED_ID ++;</span>
+<span class="fc" id="L106">        this.numberSold = 0;</span>
+<span class="fc" id="L107">        this.description = description;</span>
+
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Creates a new instance of a need
+     * @param name - String the name of the need
+     * @param price - double the price of the need
+     * @param stock - int the number of items in the cupboard of this
+     *                particular need
+     * @param tags - ArrayList&lt;String&gt; the list of tags to add to the Need.
+     */
+    public Need(String name, double price, int stock, ArrayList&lt;String&gt; tags) {
+
+<span class="fc" id="L121">        this(name, price, stock, tags, DEFAULT_IMAGE_PATH, DEFAULT_DESCRIPTION);</span>
+
+<span class="fc" id="L123">    }</span>
+
+    /**
+            * Creates a new instance of a need
+     * @param name - String the name of the need
+     * @param price - double the price of the need
+     * @param stock - int the number of items in the cupboard of this
+            *                particular need
+     * @param imagePath - String the file path of the image for the Need
+     */
+    public Need(String name, double price, int stock, String imagePath) {
+
+<span class="fc" id="L135">        this(name, price, stock, new ArrayList&lt;&gt;(), imagePath,</span>
+                DEFAULT_DESCRIPTION);
+
+<span class="fc" id="L138">    }</span>
+
+    /**
+     * Creates a new instance of a need
+     * @param name - String the name of the need
+     * @param price - double the price of the need
+     * @param stock - int the number of items in the cupboard of this
+     *                particular need
+     */
+    public Need(String name, double price, int stock) {
+
+<span class="fc" id="L149">        this(name, price, stock, new ArrayList&lt;&gt;(), DEFAULT_IMAGE_PATH,</span>
+                DEFAULT_DESCRIPTION);
+
+<span class="fc" id="L152">    }</span>
+
+    /**
+     * The addTagsToAll method takes in a List&lt;String&gt; of tags and adds &lt;br&gt;
+     * all of the tags that are not already in the static ALL_TAGS &lt;br&gt;
+     * list to the list.
+     * @param tags - List&lt;String&gt; the list of tags to be added to the &lt;br&gt;
+     *               ALL_TAGS list.
+     */
+    private void addTagsToAll(List&lt;String&gt; tags) {
+
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for(String tag : tags) {</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if(!ALL_TAGS.contains(tag)) {</span>
+
+<span class="fc" id="L167">                ALL_TAGS.add(tag);</span>
+
+            }
+
+<span class="fc" id="L171">        }</span>
+
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * Returns the name of the need
+     * @return - String the name of the need
+     */
+    public String getName() {
+
+<span class="fc" id="L181">        return this.name;</span>
+
+    }
+
+    /**
+     * Returns the price of the need
+     * @return - double the price of the need
+     */
+    public double getPrice() {
+
+<span class="fc" id="L191">        return this.price;</span>
+
+    }
+
+    /**
+     * Returns how many of this need are in the cupboard
+     * (Returns the number of this item in stock)
+     * @return - int the number of this item in stock
+     */
+    public int getStock() {
+
+<span class="fc" id="L202">        return this.stock;</span>
+
+    }
+
+     /**
+     * Returns the unique integer id of the need
+     * @return - int the unique id of the need
+     */
+    @JsonProperty(value=&quot;productID&quot;) // prevent ObjectMapper from adding &quot;admin&quot; value to JSON
+    public int getProductID() {
+        
+<span class="fc" id="L213">        return this.productID;</span>
+
+    }
+
+    /**
+     * The getImagePath method returns the filepath of the Need's image.
+     * @return - String the filepath of the Need's image.
+     */
+    public String getImagePath() {
+
+<span class="fc" id="L223">        return this.imagePath;</span>
+
+    }
+
+    /**
+     * The getTags method returns the ArrayList of String tags &lt;br&gt;
+     * associated with the Need.
+     * @return - ArrayList&lt;String&gt; The String tags associated with this Need
+     */
+    public List&lt;String&gt; getTags(){
+
+<span class="fc" id="L234">        return this.tags;</span>
+
+    }
+
+    /**
+     * The getNumberSold method returns the int that represents the &lt;br&gt;
+     * total number of this Need that have been sold.
+     * @return - int the total number of this Need that have been sold.
+     */
+    public int getNumberSold() {
+
+<span class="fc" id="L245">        return this.numberSold;</span>
+
+    }
+
+    /**
+     * The getDescription method returns the String description for the Need.
+     * @return - String the description for the Need
+     */
+    public String getDescription() {
+
+<span class="fc" id="L255">        return this.description;</span>
+
+    }
+
+    /**
+     * The getAllTags method returns the ArrayList of all String tags &lt;br&gt;
+     * that are shared by all Needs.
+     * @return - ArrayList&lt;String&gt; The String tags that are shared by all Needs
+     */
+    public static List&lt;String&gt; getAllTags() {
+
+<span class="fc" id="L266">        return ALL_TAGS;</span>
+
+    }
+
+    /**
+     * Updates the name of the need
+     * @param name - String the new name for the need
+     */
+    public void updateName(String name) {
+
+<span class="fc" id="L276">        this.name = name;</span>
+
+<span class="fc" id="L278">    }</span>
+
+    /**
+     * Updates the price of the need
+     * @param price - double the new price for the need
+     */
+    public void updatePrice(double price) {
+
+<span class="fc" id="L286">        this.price = price;</span>
+
+<span class="fc" id="L288">    }</span>
+
+    /**
+     * Changes how many of this need are in stock. Also adds to numberSold &lt;br&gt;
+     * the number of Needs sold.
+     * @param stock - int the new stock
+     */
+    public void updateStock(int stock) {
+
+<span class="fc" id="L297">        int stockDifference = this.stock - stock;</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">        if(stockDifference &gt; 0) {</span>
+
+<span class="fc" id="L300">            this.numberSold += stockDifference;</span>
+
+        }
+<span class="fc" id="L303">        this.stock -= stockDifference;</span>
+
+<span class="fc" id="L305">    }</span>
+
+    /**
+     * The updateImagePath method takes in a new String denoting the new &lt;br&gt;
+     * image path for the Need and sets it to the local image path variable.
+     * @param imagePath - String the new filepath of the image for the Need
+     */
+    public void updateImagePath(String imagePath) {
+
+<span class="fc" id="L314">        this.imagePath = imagePath;</span>
+
+<span class="fc" id="L316">    }</span>
+
+    /**
+     * The updateTags method takes in a List of Strings, sets the local &lt;br&gt;
+     * list of tags to that List and adds that List to the static &lt;br&gt;
+     * list of tags.
+     * @param tags - List&lt;String&gt; the List of tags to add
+     */
+    public void updateTags(List&lt;String&gt; tags) {
+
+<span class="fc" id="L326">        addTagsToAll(tags);</span>
+<span class="fc" id="L327">        this.tags = tags;</span>
+
+<span class="fc" id="L329">    }</span>
+
+    /**
+     * The updateDescription method updates the description for the Need.
+     * @param description - String the new description for the Need.
+     */
+    public void updateDescription (String description) {
+
+<span class="fc" id="L337">        this.description = description;</span>
+
+<span class="fc" id="L339">    }</span>
+
+    /**
+     * The clearAllTags method clears the static ALL_TAGS variable. &lt;br&gt;
+     * Mostly useful for unit testing.
+     */
+    public static void clearAllTags() {
+
+<span class="fc" id="L347">        ALL_TAGS.clear();</span>
+
+<span class="fc" id="L349">    }</span>
+
+    /**
+     * The removeTags method takes in a List of Strings and removes those &lt;br&gt;
+     * tags from the local List but not from the static List.
+     * @param tags - List&lt;String&gt; the List of tags to remove
+     */
+    /*
+    public void removeTags(List&lt;String&gt; tags) {
+
+        this.tags.removeAll(tags);
+
+    }
+     */
+
+    /**
+     * The hashCode method returns the productID for the Need, which will &lt;br&gt;
+     * be an int unique to that need.
+     * @return - int Need's productID to be used as the hash code for the Need
+     */
+    @Override
+    public int hashCode() {
+
+<span class="fc" id="L372">        return this.productID;</span>
+
+    }
+
+    /**
+     * The equals method determines if two Need objects are equal based &lt;br&gt;
+     * on if their name, price, and stock are equal.
+     * @param other - other Object (should be type Need) to be compared
+     * @return - boolean true if the Objects are the same,
+     *                   false if otherwise
+     */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        if(other instanceof Need) {</span>
+
+<span class="fc" id="L388">            Need otherNeed = (Need) other;</span>
+
+<span class="fc bfc" id="L390" title="All 2 branches covered.">            if(this.name.equals(otherNeed.getName()) &amp;&amp;</span>
+<span class="pc bpc" id="L391" title="1 of 2 branches missed.">                    this.stock == otherNeed.getStock() &amp;&amp;</span>
+<span class="pc bpc" id="L392" title="1 of 2 branches missed.">                    this.price == otherNeed.getPrice()) {</span>
+
+<span class="fc" id="L394">                return true;</span>
+
+            }else {
+
+<span class="fc" id="L398">                return false;</span>
+
+            }
+
+        } else {
+
+<span class="fc" id="L404">            return false;</span>
+
+        }
+
+    }
+
+    /**
+     * The compareTo method is used to sort the Needs in the Cupboard &lt;br&gt;
+     * by the number sold.
+     * @param need the object to be compared.
+     * @return - int
+     */
+    @Override
+    public int compareTo(Need need) {
+
+<span class="fc" id="L419">        return need.getNumberSold() - this.numberSold;</span>
+
+    }
+
+    /**
+     * Need's toString returns the data members of the Need in JSON format
+     * @return - String the Need's data in JSON format
+     */
+    @Override
+    public String toString() {
+
+<span class="fc" id="L430">        return &quot;{\&quot;ID\&quot;:&quot; + this.productID +</span>
+                &quot;,\&quot;name\&quot;:&quot; + this.name +
+                &quot;,\&quot;price\&quot;:&quot; + this.price +
+                &quot;,\&quot;stock\&quot;:&quot; + this.stock + &quot;}&quot;;
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

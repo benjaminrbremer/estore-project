@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * The abstract User class stores all user specific data
+ * and contains functions shared among all users
+ * 
+ * @author Elijah Sanders (ejs8021) 
+ */
+public class User {
+    @JsonProperty(&quot;username&quot;) private String username;
+    @JsonProperty(&quot;isAdmin&quot;) private boolean isAdmin;
+    @JsonProperty(&quot;passwordHash&quot;) private byte[] passwordHash;
+
+    /**
+     * Create a new instance of a User with an already hashed password
+     * @param username - String username of the user
+     */
+<span class="fc" id="L23">    public User(@JsonProperty(&quot;username&quot;) String username, @JsonProperty(&quot;isAdmin&quot;) boolean isAdmin, @JsonProperty(&quot;passwordHash&quot;) byte[] passwordHash) {</span>
+<span class="fc" id="L24">        this.username = username;</span>
+<span class="fc" id="L25">        this.isAdmin = isAdmin;</span>
+<span class="fc" id="L26">        this.passwordHash = passwordHash;</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Create a new instance of a user with a password string
+     * @return
+     */
+    public User(String username, boolean isAdmin, String pasword) {
+<span class="fc" id="L34">        this(username, isAdmin, hashPassword(pasword));</span>
+<span class="fc" id="L35">    }</span>
+    
+    /**
+     * Return the username of a user
+     * @return - String the user's username
+     */
+    public String getUsername() {
+<span class="fc" id="L42">        return username;</span>
+    }
+
+    /**
+     * Change the username of a user
+     * @param username - String new username of the user
+     */
+    public void updateUsername(String username) {
+<span class="fc" id="L50">        this.username = username;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Returns if the user is an admin
+     * @return - boolean True if user is an admin, False otherwise
+     */
+    @JsonProperty(value=&quot;isAdmin&quot;) // prevent ObjectMapper from adding &quot;admin&quot; value to JSON
+    public boolean isAdmin() {
+<span class="fc" id="L59">        return isAdmin;</span>
+    };
+
+    /**
+     * Hashes a user's password so it can be securely stored
+     * @return - String hash of the password
+     */
+    public static byte[] hashPassword(String password) {
+        try {
+<span class="fc" id="L68">            MessageDigest md = MessageDigest.getInstance(&quot;SHA-512&quot;);</span>
+<span class="fc" id="L69">            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L70">            return hash;</span>
+<span class="nc" id="L71">        } catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L72">            return null;</span>
+        }
+
+    }
+    
+    /**
+     * Return the hash of the user's password
+     * @return - byte[] password hash
+     */
+    public byte[] getPasswordHash() {
+<span class="fc" id="L82">        return passwordHash;</span>
+    }
+
+    /**
+     * The equals method determines if two Users are equal
+     * @param other - other User to compare to
+     * @return - boolean true if the Users are equal, false if not
+     */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if(other instanceof User) {</span>
+
+<span class="fc" id="L95">            User otherUser = (User) other;</span>
+
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if(this.isAdmin == otherUser.isAdmin &amp;&amp;</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                    this.username.equals(otherUser.getUsername()) &amp;&amp;</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                    this.getPasswordHash() == otherUser.getPasswordHash()) {</span>
+
+<span class="fc" id="L101">                return true;</span>
+
+            }else {
+
+<span class="nc" id="L105">                return false;</span>
+
+            }
+
+        }else {
+
+<span class="nc" id="L111">            return false;</span>
+
+        }
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

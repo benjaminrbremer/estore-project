@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * The UserController handles HTTP GET, POST, UPDATE, and
+ * DELETE requests related to users and login
+ * 
+ * @author Elijah Sanders (ejs8021)
+ */
+@RestController
+@RequestMapping(&quot;user&quot;)
+public class UserController {
+    
+    /**
+     * The UserDAO obkect that allows the controller to communicate
+     * with the JSON files
+     */
+    private final UserDAO userDAO;
+
+    // Logger object to help keep track of backend functionality in the terminal
+<span class="fc" id="L30">    private static final Logger LOG =</span>
+<span class="fc" id="L31">            Logger.getLogger(CupboardFileDAO.class.getName());</span>
+
+    /**
+     * The UserController copnstructor creates a new UserFileDAO object to
+     * interface with the JSON files
+     */
+<span class="fc" id="L37">    public UserController(UserDAO userDAO) {</span>
+<span class="fc" id="L38">        this.userDAO = userDAO;</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * Takes a username and password from the body of an HTTP request and creates a new user
+     * in UserFileDAO, as long as a user with that username doesn't already exist
+     * @param loginInfo - Map containing login info in the form {&quot;username&quot;:&quot;u&quot;, &quot;password&quot;:&quot;p&quot;}
+     * @return ResponseEntity with new user and HTTP status CREATED if the User is succesfully
+     * created, CONFLICT if it already exists, or INTERNAL_SERVER_ERROR if an IOException is thrown
+     */
+    @PostMapping()
+    public ResponseEntity&lt;User&gt; createUser(@RequestBody Map&lt;String, String&gt; loginInfo) {
+<span class="fc" id="L50">        LOG.info(&quot;POST /user&quot;);</span>
+        try {
+<span class="fc" id="L52">            String username = loginInfo.get(&quot;username&quot;);</span>
+<span class="fc" id="L53">            String password = loginInfo.get(&quot;password&quot;);</span>
+<span class="fc" id="L54">            User user = new User(username, false, password);</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if(userDAO.createUser(username, password, false) == null)</span>
+<span class="fc" id="L56">                return new ResponseEntity&lt;&gt;(HttpStatus.CONFLICT);</span>
+            else
+<span class="fc" id="L58">                return new ResponseEntity&lt;User&gt;(user, HttpStatus.CREATED);</span>
+<span class="fc" id="L59">        } catch (IOException e) {</span>
+<span class="fc" id="L60">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="fc" id="L61">            return new ResponseEntity&lt;&gt;(HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Takes a username and password from the body of an HTTP request and creates a new admin
+     * in UserFileDAO, as long as a user with that username doesn't already exist
+     * @param loginInfo - Map containing login info in the form {&quot;username&quot;:&quot;u&quot;, &quot;password&quot;:&quot;p&quot;}
+     * @return ResponseEntity with new user and HTTP status CREATED if the User is succesfully
+     * created, CONFLICT if it already exists, or INTERNAL_SERVER_ERROR if an IOException is thrown
+     */
+    @PostMapping(&quot;/admin&quot;)
+    public ResponseEntity&lt;User&gt; createAdmin(@RequestBody Map&lt;String, String&gt; loginInfo) {
+<span class="fc" id="L74">        LOG.info(&quot;POST /user/admin&quot;);</span>
+        try {
+<span class="fc" id="L76">            String username = loginInfo.get(&quot;username&quot;);</span>
+<span class="fc" id="L77">            String password = loginInfo.get(&quot;password&quot;);</span>
+<span class="fc" id="L78">            User user = new User(username, true, password);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if(userDAO.createUser(username, password, true) == null)</span>
+<span class="nc" id="L80">                return new ResponseEntity&lt;&gt;(HttpStatus.CONFLICT);</span>
+            else
+<span class="fc" id="L82">                return new ResponseEntity&lt;User&gt;(user, HttpStatus.CREATED);</span>
+<span class="nc" id="L83">        } catch (IOException e) {</span>
+<span class="nc" id="L84">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="nc" id="L85">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Takes a username from the URL of an HTTP request and removes the associated
+     * user from the UserFileDAO
+     * @param username - String username of the user to be deleted
+     * @return ResponseEntity with the deleted user and HTTP status OK if deleted,
+     * NOT_FOUND if user doesn't exist, and INTERNAL_SERVER_ERROR if an IOException is thrown
+     */
+    @DeleteMapping(&quot;/{username}&quot;)
+    public ResponseEntity&lt;User&gt; deleteUser(@PathVariable String username) {
+<span class="fc" id="L98">        LOG.info(&quot;DELETE /user/&quot;  + username);</span>
+        try {
+<span class="fc" id="L100">            User user = userDAO.deleteUser(username);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            if(user == null)</span>
+<span class="fc" id="L102">                return new ResponseEntity&lt;&gt;(null, HttpStatus.NOT_FOUND);</span>
+            else
+<span class="fc" id="L104">                return new ResponseEntity&lt;&gt;(user, HttpStatus.OK);</span>
+<span class="fc" id="L105">        } catch (IOException e) {</span>
+<span class="fc" id="L106">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="fc" id="L107">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Gets a user with a given username
+     * @param username - String username of the user to get
+     * @return ResponseEntity with the User and HTTP status of OK if found, NOT_FOUND
+     * if user doesn't exist, or INTERNAL_SERVER_ERROR if there is an IOException
+     */
+    @GetMapping(&quot;/{username}&quot;)
+    public ResponseEntity&lt;User&gt; getUser(@PathVariable String username) {
+<span class="fc" id="L119">        LOG.info(&quot;GET /user/&quot; + username);</span>
+        try {
+<span class="fc" id="L121">            User user = userDAO.getUser(username);</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">            if(user == null)</span>
+<span class="fc" id="L123">                return new ResponseEntity&lt;&gt;(null, HttpStatus.NOT_FOUND);</span>
+            else
+<span class="fc" id="L125">                return new ResponseEntity&lt;&gt;(user, HttpStatus.OK);</span>
+<span class="nc" id="L126">        } catch (Exception e) {</span>
+<span class="nc" id="L127">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="nc" id="L128">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Responds with true if a user is an admin, false if they are a helper
+     * @param username - String username of the user to check
+     * @return ResponseEntity with Boolean (true if the user is an admin, false
+     * if they aren't) and HTTP status OK if the user exists, NOT_FOUND if they
+     * don't exist, and INTERNAL_SERVER_ERROR if there is an IOEXception
+     */
+    @GetMapping(&quot;/admin/{username}&quot;)
+    public ResponseEntity&lt;Boolean&gt; isAdmin(@PathVariable String username) {
+<span class="fc" id="L141">        LOG.info(&quot;GET /user/admin/&quot; + username);</span>
+        try {
+<span class="fc" id="L143">            User user = userDAO.getUser(username);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if(user == null)</span>
+<span class="fc" id="L145">                return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+            else
+<span class="fc" id="L147">                return new ResponseEntity&lt;&gt;(user.isAdmin(), HttpStatus.OK);</span>
+<span class="nc" id="L148">        } catch (IOException e) {</span>
+<span class="nc" id="L149">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="nc" id="L150">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Attempts to login a user. The username and password should be passed in the request body.
+     * @param loginInfo - Map containing login info in the form {&quot;username&quot;:&quot;u&quot;, &quot;password&quot;:&quot;p&quot;}
+     * @return ResponseEntity&lt;String&gt; with a session key and HTTP status OK is the login was successful,
+     * NOT_FOUND if a user with the given username doesn't exist, UNAUTHORIZED if the password is incorrect,
+     * or INTERNAL_SERVER_ERROR if there is an IOException 
+     */
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;String&gt; login(@RequestBody Map&lt;String, String&gt; loginInfo) {
+        try {
+<span class="fc" id="L164">            String username = loginInfo.get(&quot;username&quot;);</span>
+<span class="fc" id="L165">            String password = loginInfo.get(&quot;password&quot;);</span>
+<span class="fc" id="L166">            User user = userDAO.getUser(username);</span>
+<span class="fc" id="L167">            LOG.info(&quot;GET /user/login/&quot; + username);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if(user == null)</span>
+<span class="fc" id="L169">                return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            else if(Arrays.equals(User.hashPassword(password), user.getPasswordHash())) {</span>
+<span class="fc" id="L171">                return new ResponseEntity&lt;String&gt;(&quot;SUCCESS&quot;, HttpStatus.OK);</span>
+            } else {
+<span class="fc" id="L173">                return new ResponseEntity&lt;&gt;(HttpStatus.UNAUTHORIZED);</span>
+            }
+<span class="nc" id="L175">        } catch (IOException e) {</span>
+<span class="nc" id="L176">            LOG.log(Level.SEVERE, e.getLocalizedMessage());</span>
+<span class="nc" id="L177">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+        }
+    }
+
+    /**
+     * Logout a username with a given username passed in the path.
+     * @param username - String username of the user to log out
+     * @return - ResponseEntity&lt;Boolean&gt; True if the logout was successful, False if it wasn't (including
+     * if the user wasn't logged in to begin with). Http Status NOT_FOUND if the username doesn't exist, 
+     * INTERNAL_SERVER_ERROR if there's an IOException, or OK otherwise
+     */
+    @PostMapping(&quot;/logout/{username}&quot;)
+    public ResponseEntity&lt;Boolean&gt; logout(@PathVariable String username) {
+<span class="nc" id="L190">        return new ResponseEntity&lt;Boolean&gt;(true, HttpStatus.OK);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

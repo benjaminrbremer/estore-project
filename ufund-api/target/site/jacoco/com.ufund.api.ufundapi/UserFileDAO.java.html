@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserFileDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">UserFileDAO.java</span></div><h1>UserFileDAO.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Implements the UserDAO interface to store, access, and manupulate Users stored in JSON file
+ * 
+ * @author Elijah Sanders (ejs8021)
+ */
+@Component
+public class UserFileDAO implements UserDAO {
+
+    // Map containing all the Users mapped to their username
+    private Map&lt;String, User&gt; users;
+
+    // Paths of JSON files for helper and admin objects
+    private String helperFilename;
+    private String adminFilename;
+
+    private ObjectMapper objectMapper;
+
+    /**
+     * UserFileDAO constructor initializes the HashMap containing the users
+     * using a given ObjectMapper, getting the users from a given file
+     * @param filename - String the file to load users from
+     * @param objectMapper - ObjectMapper provides JSON to/from Java object deserialization/serialization
+     * 
+     * @throws IOException if there was a failure loading the file
+     */
+<span class="fc" id="L41">    public UserFileDAO(@Value(&quot;${helpers.file}&quot;) String helperFilename, @Value(&quot;${admins.file}&quot;) String adminFilename, ObjectMapper objectMapper) throws IOException {</span>
+<span class="fc" id="L42">        this.helperFilename = helperFilename;</span>
+<span class="fc" id="L43">        this.adminFilename = adminFilename;</span>
+<span class="fc" id="L44">        this.objectMapper = objectMapper;</span>
+
+<span class="fc" id="L46">        SimpleModule simpleModule = new SimpleModule();</span>
+<span class="fc" id="L47">        simpleModule.addKeyDeserializer(Need.class, new NeedKeyDeserializer());</span>
+<span class="fc" id="L48">        this.objectMapper.registerModule(simpleModule);</span>
+
+<span class="fc" id="L50">        load();</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Loads {@linkplain User users} from the JSON files into hashMap
+     * @throws IOException when file can't be accessed or read
+     */
+    public boolean load() throws IOException {
+<span class="fc" id="L58">        users = new HashMap&lt;&gt;();</span>
+
+        // deserialize the helper JSON objects 
+<span class="fc" id="L61">        Helper[] helperArray = objectMapper.readValue(new File(helperFilename), Helper[].class);</span>
+
+        // add users to hashMap
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for(Helper helper : helperArray) {</span>
+<span class="fc" id="L65">            users.put(helper.getUsername(), helper);</span>
+        }
+
+        // deserialize the admin JSON objects
+<span class="fc" id="L69">        Admin[] adminArray = objectMapper.readValue(new File(adminFilename), Admin[].class);</span>
+
+        // add admins to hashmap
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for(Admin admin : adminArray) {</span>
+<span class="fc" id="L73">            users.put(admin.getUsername(), admin);</span>
+        }
+
+<span class="fc" id="L76">        return true;</span>
+    }
+
+    /**
+     * Save Users to the JSON files
+     * @throws IOException
+     */
+    private boolean save() throws IOException {
+        // make an ArrayList with all the helpers and with all the admins
+<span class="fc" id="L85">        ArrayList&lt;Helper&gt; helperArrayList = new ArrayList&lt;Helper&gt;();</span>
+<span class="fc" id="L86">        ArrayList&lt;Admin&gt; adminArrayList = new ArrayList&lt;Admin&gt;();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for(User user : users.values()) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if(user instanceof Helper)</span>
+<span class="fc" id="L89">                helperArrayList.add((Helper) user);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            else if(user instanceof Admin)</span>
+<span class="fc" id="L91">                adminArrayList.add((Admin) user);</span>
+<span class="fc" id="L92">        }</span>
+<span class="fc" id="L93">        Helper[] helperArray = helperArrayList.toArray(new Helper[helperArrayList.size()]);</span>
+<span class="fc" id="L94">        Admin[] adminArray = adminArrayList.toArray(new Admin[adminArrayList.size()]);</span>
+
+        // serialize the User objects into JSON
+<span class="fc" id="L97">        objectMapper.writeValue(new File(helperFilename), helperArray);</span>
+<span class="fc" id="L98">        objectMapper.writeValue(new File(adminFilename), adminArray);</span>
+
+<span class="fc" id="L100">        return true;</span>
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public User createUser(String username, String password, boolean isAdmin) throws IOException {
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if(users.containsKey(username)) {</span>
+<span class="fc" id="L109">            return null;</span>
+        }
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if(isAdmin) {</span>
+<span class="fc" id="L112">            Admin admin = new Admin(username, password);</span>
+<span class="fc" id="L113">            users.put(admin.getUsername(), admin);</span>
+<span class="fc" id="L114">            save();</span>
+<span class="fc" id="L115">            return admin;</span>
+        } else {
+<span class="fc" id="L117">            Helper helper = new Helper(username, password);</span>
+<span class="fc" id="L118">            users.put(helper.getUsername(), helper);</span>
+<span class="fc" id="L119">            save();</span>
+<span class="fc" id="L120">            return helper;</span>
+        }
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public User deleteUser(String username) throws IOException{
+<span class="fc" id="L129">        User user = users.remove(username);</span>
+<span class="fc" id="L130">        save();</span>
+<span class="fc" id="L131">        return user;</span>
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public User getUser(String username) {
+<span class="fc" id="L139">        return users.get(username);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public User[] getAllUsers() {
+<span class="fc" id="L147">        User[] userArray = new User[users.size()];</span>
+<span class="fc" id="L148">        int i = 0;</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        for(User user : users.values()) {</span>
+<span class="fc" id="L150">            userArray[i] = user;</span>
+<span class="fc" id="L151">            i++;</span>
+<span class="fc" id="L152">        }</span>
+<span class="fc" id="L153">        return userArray;</span>
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public Basket getBasket(String username) throws IOException  {
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if(users.containsKey(username)) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            if(users.get(username) instanceof Helper) {</span>
+<span class="fc" id="L163">                Helper helper = (Helper) users.get(username);</span>
+<span class="fc" id="L164">                return helper.getBasket();</span>
+            }
+        }
+<span class="fc" id="L167">        return null;</span>
+    }
+
+    /**
+     ** {@inheritDoc}
+     */
+    @Override
+    public Basket updateBasket(String username, Basket newBasket) throws IOException {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if(users.containsKey(username)) {</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">            if(users.get(username) instanceof Helper) {</span>
+<span class="fc" id="L177">                Helper helper = (Helper) users.get(username);</span>
+<span class="fc" id="L178">                helper.updateBasket(newBasket);</span>
+<span class="fc" id="L179">                save();</span>
+<span class="fc" id="L180">                return newBasket;</span>
+            }else {
+<span class="nc" id="L182">                return null;</span>
+            }
+        }else {
+<span class="nc" id="L185">            return null;</span>
+        }
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

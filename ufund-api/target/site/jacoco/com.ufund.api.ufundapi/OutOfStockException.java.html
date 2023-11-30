@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OutOfStockException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">OutOfStockException.java</span></div><h1>OutOfStockException.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+/**
+ * The OutOfStockException is thrown by the Basket class when a User &lt;br&gt;
+ * attempts to add more Needs to their Basket than there are in stock &lt;br&gt;
+ * and when a User attempts to check out their Basket when there are &lt;br&gt;
+ * not enough Needs in stock.
+ *
+ * @author Benjamin Bremer (bwb1113)
+ */
+public class OutOfStockException extends Exception {
+
+    /**
+     * The OutOfStockException constructor takes in a message and passes &lt;br&gt;
+     * it to its super constructor in Exception.
+     * @param message - String the error message.
+     */
+    public OutOfStockException(String message) {
+
+<span class="fc" id="L20">        super(message);</span>
+
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * The toString for the OutOfStockException just prints that a &lt;br&gt;
+     * generic out of stock message.
+     * @return - String generic out of stock message
+     */
+    /*
+    @Override
+    public String toString() {
+
+        return &quot;Item is out of stock.&quot;;
+
+    }
+     */
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BasketController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ufund-api</a> &gt; <a href="index.source.html" class="el_package">com.ufund.api.ufundapi</a> &gt; <span class="el_source">BasketController.java</span></div><h1>BasketController.java</h1><pre class="source lang-java linenums">package com.ufund.api.ufundapi;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.logging.Logger;
+
+/**
+ * The BasketController class contains the methods necessary to &lt;br&gt;
+ * handle HTTP requests regarding modifying the items in a User's &lt;br&gt;
+ * Basket. It is dependent on the UserFileDAO class for persistence and &lt;br&gt;
+ * the Basket class for the backend Basket functionality.
+ *
+ * @author Benjamin Bremer
+ */
+@RestController
+@RequestMapping(&quot;basket&quot;)
+public class BasketController {
+
+    /**
+     * BasketController uses the UserFileDAO for persistence &lt;br&gt;
+     * BasketController handles the Http requests for a Basket which is &lt;br&gt;
+     * held by a user.
+     */
+    private final UserDAO userFileDAO;
+
+    private final CupboardDAO cupboardFileDAO;
+
+    /**
+     * Logger to help keep track of Http requests in the command line
+     */
+<span class="fc" id="L34">    private static final Logger LOG =</span>
+<span class="fc" id="L35">            Logger.getLogger(BasketController.class.getName());</span>
+
+    /**
+     * Constructor has a UserFileDAO object injected into it.
+     */
+<span class="fc" id="L40">    public BasketController(UserDAO userFileDAO, CupboardDAO cupboardFileDAO) {</span>
+
+<span class="fc" id="L42">        this.userFileDAO = userFileDAO;</span>
+<span class="fc" id="L43">        this.cupboardFileDAO = cupboardFileDAO;</span>
+<span class="fc" id="L44">        LOG.info(&quot;Initialized BasketController; UserFileDAO\n&quot;);</span>
+
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * The addNeedBasket method takes in a username (that corresponds &lt;br&gt;
+     * to a basket) and the id of a Need to be added to that User's Basket. &lt;br&gt;
+     * It handles the IOException that might be thrown by UserFileDAO &lt;br&gt;
+     * and the OutOfStockException that might be thrown by Basket.
+     * @param username - String the username of the User whose Basket &lt;br&gt;
+     *                   we want to modify.
+     * @param id - int the id of the Need to be added to the User's Basket
+     * @return - ResponseEntity&lt;HttpStatus&gt; indicating the status of the
+     *           operation after execution (INTERNAL_SERVER_ERROR &lt;br&gt;
+     *           if an IOException is thrown, EXPECTATION_FAILED if &lt;br&gt;
+     *           the item does not have enough stock, and OK if &lt;br&gt;
+     *           the operation succeeds).
+     */
+    @PutMapping(&quot;/{username}/{id}&quot;)
+    public ResponseEntity&lt;Basket&gt; addNeedBasket (
+            @PathVariable(&quot;username&quot;) String username,
+            @PathVariable(&quot;id&quot;) int id) {
+
+<span class="fc" id="L67">        LOG.info(&quot;PUT /ufundapi/&quot; + username + &quot;\n&quot;);</span>
+
+        try {
+
+            Basket basket;
+
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if((basket = this.userFileDAO.getBasket(username)) == null) {</span>
+
+<span class="fc" id="L75">                LOG.info(&quot;\tPUT failed: Basket does not ezist\n&quot;);</span>
+<span class="fc" id="L76">                return new ResponseEntity&lt;&gt;(basket, HttpStatus.NOT_FOUND);</span>
+
+            }else {
+
+                Need need;
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">                if((need = this.cupboardFileDAO.getNeed(id)) != null) {</span>
+
+<span class="fc" id="L84">                    this.userFileDAO.updateBasket(</span>
+<span class="fc" id="L85">                            username, this.userFileDAO.getBasket(username).</span>
+<span class="fc" id="L86">                                    addNeedBasket(need));</span>
+<span class="fc" id="L87">                    LOG.info(&quot;\tPUT succeeded: &quot; +</span>
+                            &quot;Need added to User's Basket\n&quot;);
+<span class="fc" id="L89">                    return new ResponseEntity&lt;&gt;(basket, HttpStatus.OK);</span>
+
+                }else {
+
+<span class="fc" id="L93">                    LOG.info(&quot;\tPUT failed: Need is null\n&quot;);</span>
+<span class="fc" id="L94">                    return new ResponseEntity&lt;&gt;(null,</span>
+                            HttpStatus.INTERNAL_SERVER_ERROR);
+
+                }
+
+            }
+
+<span class="fc" id="L101">        }catch (IOException ioException) {</span>
+
+<span class="fc" id="L103">            LOG.info(&quot;\tPUT failed: IOException\n&quot;);</span>
+<span class="fc" id="L104">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+
+<span class="fc" id="L106">        }catch (OutOfStockException outOfStockException) {</span>
+
+<span class="fc" id="L108">            LOG.info(&quot;\tPUT failed: OutOfStockException\n&quot;);</span>
+<span class="fc" id="L109">            return new ResponseEntity&lt;&gt;(null, HttpStatus.EXPECTATION_FAILED);</span>
+
+        }
+
+        /*
+        try {
+            if(this.userFileDAO.getBasket(username) == null) {
+                return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);
+            }
+            this.userFileDAO.updateBasket(username,
+                    this.userFileDAO.getBasket(username).addNeedBasket(need));
+            LOG.info(&quot;\tPUT succeeded: Need added to User's Basket\n&quot;);
+            return new ResponseEntity&lt;&gt;(HttpStatus.OK);
+
+        }catch (IOException ioException) {
+
+            LOG.info(&quot;\tPUT failed: IOException\n&quot;);
+            return new ResponseEntity&lt;&gt;(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }catch (OutOfStockException outOfStockException) {
+
+            LOG.info(&quot;\tPUT failed: Item is out of stock\n&quot;);
+            return new ResponseEntity&lt;&gt;(HttpStatus.EXPECTATION_FAILED);
+
+        }
+
+         */
+
+    }
+
+    /**
+     * The removeNeedBasket method takes in a username (that corresponds &lt;br&gt;
+     * to a basket) and a Need to be removed from that User's Basket. &lt;br&gt;
+     * It handles the IOException that might be thrown by UserFileDAO.
+     * @param username - String the username of the User whose Basket &lt;br&gt;
+     *                   we want to remove an item from.
+     * @param id - int the id of the Need to be removed from the User's
+     *             Basket.
+     * @return - ResponseEntity&lt;HttpStatus&gt; the status of the operation &lt;br&gt;
+     *           after execution (INTERNAL_SERVER_ERROR if an IOException &lt;br&gt;
+     *           is thrown and OK if the operation succeeds).
+     */
+    @DeleteMapping(&quot;/{username}/{id}&quot;)
+    public ResponseEntity&lt;Basket&gt; removeNeedBasket(
+            @PathVariable(&quot;username&quot;) String username,
+            @PathVariable(&quot;id&quot;) int id) {
+
+<span class="fc" id="L156">        LOG.info(&quot;DELETE /ufundapi/&quot; + username + &quot;\n&quot;);</span>
+
+        try {
+
+<span class="fc" id="L160">            Basket basket = this.userFileDAO.getBasket(username);</span>
+
+<span class="fc" id="L162">            this.userFileDAO.updateBasket(username,</span>
+<span class="fc" id="L163">                    basket.removeNeedBasket(id));</span>
+<span class="fc" id="L164">            LOG.info(&quot;\tDELETE succeeded: &quot; +</span>
+                    &quot;Need removed from User's Basket\n&quot;);
+<span class="fc" id="L166">            return new ResponseEntity&lt;&gt;(basket, HttpStatus.OK);</span>
+
+<span class="fc" id="L168">        }catch (IOException ioException) {</span>
+
+<span class="fc" id="L170">            LOG.info(&quot;\tDELETE failed: IOException\n&quot;);</span>
+<span class="fc" id="L171">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+
+<span class="fc" id="L173">        }catch (NullPointerException nullPointerException) {</span>
+
+<span class="fc" id="L175">            LOG.info(&quot;\tDELETE failed: NullPointerException\n&quot;);</span>
+<span class="fc" id="L176">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+
+        }
+
+    }
+
+    /**
+     * The fundBasket method funds a specified User's Basket. It handles &lt;br&gt;
+     * the IOException that might be thrown by UserFileDAO and the &lt;br&gt;
+     * OutOfStockException that might be thrown by Basket.
+     * @param username - String the username of the User whose Basket &lt;br&gt;
+     *                   needs to be funded.
+     * @return - ResponseEntity&lt;HttpStatus&gt; the status of the operation &lt;br&gt;
+     *           after execution (INTERNAL_SERVER_ERROR if an IOException &lt;br&gt;
+     *           is thrown, EXPECTATION_FAILED if an OutOfStockException &lt;br&gt;
+     *           is thrown, and OK if the operation succeeds).
+     */
+    @PutMapping(&quot;/{username}/checkout&quot;)
+    public ResponseEntity&lt;Basket&gt; fundBasket(
+            @PathVariable String username) {
+
+<span class="fc" id="L197">        LOG.info(&quot;PUT /ufundapi/&quot; + username + &quot;/checkout\n&quot;);</span>
+
+        try {
+
+<span class="fc" id="L201">            Basket basket = this.userFileDAO.getBasket(username);</span>
+
+<span class="fc" id="L203">            this.userFileDAO.updateBasket(username, basket.fundBasket());</span>
+<span class="fc" id="L204">            LOG.info(&quot;\tPUT succeeded: Needs checked out\n&quot;);</span>
+<span class="fc" id="L205">            return new ResponseEntity&lt;&gt;(basket, HttpStatus.OK);</span>
+
+<span class="fc" id="L207">        }catch (IOException ioException) {</span>
+
+<span class="fc" id="L209">            LOG.info(&quot;\tPUT failed: IOException\n&quot;);</span>
+<span class="fc" id="L210">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+
+<span class="fc" id="L212">        }catch (OutOfStockException outOfStockException) {</span>
+
+<span class="fc" id="L214">            LOG.info(&quot;\tPUT failed: Item(s) is(are) out of stock\n&quot;);</span>
+<span class="fc" id="L215">            return new ResponseEntity&lt;&gt;(null, HttpStatus.EXPECTATION_FAILED);</span>
+
+        }
+
+    }
+
+    /**
+     * The getBasket method gets the Basket associated with a User.
+     * @param username - The username of the User the Basket belongs to
+     * @return - The Basket of the specified User (null if User does not exist)
+     */
+    @GetMapping(&quot;/{username}&quot;)
+    public ResponseEntity&lt;Basket&gt; getBasket(
+            @PathVariable String username) {
+
+<span class="fc" id="L230">        LOG.info(&quot;GET /&quot; + username + &quot;\n&quot;);</span>
+
+        try {
+
+<span class="fc" id="L234">            Basket result = this.userFileDAO.getBasket(username);</span>
+
+<span class="fc bfc" id="L236" title="All 2 branches covered.">            if(result != null) {</span>
+
+<span class="fc" id="L238">                LOG.info(&quot;\tGET succeeded\n&quot;);</span>
+<span class="fc" id="L239">                return new ResponseEntity&lt;&gt;(result, HttpStatus.OK);</span>
+
+            }else {
+
+<span class="fc" id="L243">                LOG.info(&quot;\tGET failed: User does not exist\n&quot;);</span>
+<span class="fc" id="L244">                return new ResponseEntity&lt;&gt;(result, HttpStatus.NOT_FOUND);</span>
+
+            }
+
+<span class="fc" id="L248">        }catch (IOException ioException) {</span>
+
+<span class="fc" id="L250">            LOG.info(&quot;\tGET failed: IOException\n&quot;);</span>
+<span class="fc" id="L251">            return new ResponseEntity&lt;&gt;(null, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
